@@ -216,9 +216,9 @@ Pair compile_exp(A_exp e) {
     res = makePair(t0, list);
     printf("COMPILE_BOOL_EXP_END res->t0: %s\n", res->addr->content.var);
     //última var. ()é usada no salto)
-    if (strcmp(final_reg, "") != 0)
+    /*if (strcmp(final_reg, "") != 0)
       free(final_reg);
-    final_reg = malloc(sizeof(char) * 4);
+    final_reg = malloc(sizeof(char) * 4);*/
     final_reg = res->addr->content.var;
     return res;
     break;
@@ -259,6 +259,7 @@ Pair compile_exp(A_exp e) {
     char *var = malloc(sizeof(char) * 2);
     itoa(p->addr->content.val, var);
     final_reg = var;
+    printf("final_reg: %s\n",final_reg );
     return p;
     printf("int to str: %s\n", final_reg);
     break;
@@ -268,6 +269,7 @@ Pair compile_exp(A_exp e) {
     p = makePair(makeVar(e->u.var), NULL);
     printf("%s\n", p->addr->content.var);
     final_reg = p->addr->content.var;
+    printf("final_reg: %s\n",final_reg );
     return p;
     break;
   case A_boolExp:
@@ -307,12 +309,11 @@ Pair compile(I_list il) {
     compile_decl(il->head.decl);
     break;
   }
-  // print_TACLIST(tl->clist);
   if (il->tail != NULL) {
     Pair aux = compile(il->tail);
     tl->clist = append(tl->clist, aux->clist);
   }
-  // print_TACLIST(tl->clist);
+   //print_TACLIST(tl->clist);
   return tl;
 }
 
@@ -353,23 +354,15 @@ Pair compile_cmd(CMD cmd) {
   case ASSIGN_KIND:
     tl = compile_ass(cmd);
     break;
-  /*  case WHILE_KIND:
+  case WHILE_KIND:
       tl = compile_while(cmd);
-      break;*/
+      break;
   default:
     break;
   }
   p = makePair(NULL, tl);
   return p;
 }
-
-/*// compila comando WHILE
-TACList compile_while(CMD wh) {
-  Pair e_aux = compile_exp(wh->u.w.while_);
-  TACList tl = compile(wh->u.w.while_I_list_);
-  // LABEL "!#!"§¹@§
-  return tl;
-}*/
 
 TACList compile_ass(CMD d) {
   printf("ASSSS ASADSAASASSSSSSSSSSSSSSSSS _F_ SDF EW£¹@§@¹§½¹\n");
@@ -388,6 +381,27 @@ TACList compile_ass(CMD d) {
   return aux;
 }
 
+// compila comando WHILE
+TACList compile_while(CMD wh) {
+  TACList w = malloc(sizeof(*w)), jlb = malloc(sizeof(*jlb));
+  Pair p_exp = compile_exp(wh->u.w.while_);
+  // cria while_label e coloca exp. na cauda da label
+  w = makeTACList(makeTAC(Label, makeNewLabel(), NULL, NULL), p_exp->clist);
+  //adiciona On_false label
+  jlb->head = makeTAC(On_False, makeVar(final_reg), makeNewLabel(), NULL);
+  w = append(w, jlb);
+  if(wh->u.w.while_I_list_){
+    TACList j = makeTACList(makeTAC(GoToLabel,w->head->addr1, NULL, NULL), NULL);
+    Pair ptl = compile(wh->u.w.while_I_list_);
+    ptl->clist = append(ptl->clist, j);
+    w = append(w, ptl->clist);
+  }
+  //adiciona label if false ao final do while
+  w = append(w, makeTACList(makeTAC(Label, jlb->head->addr2, NULL, NULL), NULL));
+  print_TACLIST(w);
+  return w;
+}
+
 TACList compile_if(CMD ift) {
   printf("COMPILE_IF\n");
   TACList ilb = malloc(sizeof(*ilb)), jlb = malloc(sizeof(*jlb)),
@@ -399,7 +413,6 @@ TACList compile_if(CMD ift) {
   // cria if_label e coloca exp. na cauda da label
   ilb = makeTACList(makeTAC(Label, makeNewLabel(), NULL, NULL), p_exp->clist);
   printf("new IF label: %s\n", ilb->head->addr1->content.var);
-  // ilb->tail = p_exp->clist;
   // IF_FALSE
   jlb->head = makeTAC(On_False, makeVar(final_reg), makeNewLabel(),
                       NULL); // cria jump_label

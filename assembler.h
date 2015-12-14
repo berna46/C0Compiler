@@ -48,6 +48,7 @@ Pair compile_cmd(CMD);
 TACList compile_while(CMD);
 TACList compile_ass(CMD);
 TACList compile_if(CMD);
+void superF(I_list);
 
 struct Address_ {
   enum { Empty, Int, String } AddrKind;

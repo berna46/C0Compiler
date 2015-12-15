@@ -63,6 +63,12 @@ Address makeVar(char *c) {
   a->content.var = c;
   return a;
 }
+Address makeReg(char *c) {
+  Address a = malloc(sizeof(*a));
+  a->AddrKind = Register;
+  a->content.var = c;
+  return a;
+}
 
 Address makeEmpty() {
   Address a = malloc(sizeof(*a));
@@ -71,15 +77,16 @@ Address makeEmpty() {
 }
 
 Address makeNewVar() {
-  char *v = malloc(sizeof(char) * 3);
-  char *var = malloc(sizeof(char) * 4);
-  var[0] = 't';
-  var[1] = '\0';
+  char *v = malloc(sizeof(char) * 4);
+  char *var = malloc(sizeof(char) * 5);
+  var[0] = '$';
+  var[1] = 't';
+  var[2] = '\0';
   // supondo que não serão usados 100 registos
   itoa(i, v);
   strcat(var, v);
   i++;
-  return makeVar(var);
+  return makeReg(var);
 }
 
 Address makeNewLabel() {
@@ -236,7 +243,6 @@ Pair compile_exp(A_exp e) {
     res = makePair(t0, list);
     return res;
     break;
-
   case A_intExp:
     p = makePair(makeVal(e->u.intt), NULL);
     char *var = malloc(sizeof(char) * 2);
@@ -244,7 +250,6 @@ Pair compile_exp(A_exp e) {
     final_reg = var;
     return p;
     break;
-
   case A_varExp:
     p = makePair(makeVar(e->u.var), NULL);
     final_reg = p->addr->content.var;
@@ -298,7 +303,7 @@ Pair compile(I_list il) {
 
 void superF(I_list il){
   int f = 0, d = 0;
-  if((f = open("out", O_CREAT | O_RDWR | O_TRUNC | S_IRUSR | S_IWUSR )) < 0){
+  if((f = open("out", O_CREAT | O_WRONLY | O_TRUNC | S_IRUSR | S_IWUSR )) < 0){
     fprintf(stderr, "Não foi possivel criar o ficheiro\n");
     exit(EXIT_FAILURE);
   }
@@ -311,6 +316,7 @@ void superF(I_list il){
   hdestroy();
   //só declarações
   printf("\t\t.text\n");
+  printf("main:\n");
   if(p->clist != NULL)
     print_TACLIST(p->clist);
   close(f);

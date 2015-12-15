@@ -31,6 +31,7 @@ Address makeVal(int);
 Address makeVar(char *);
 Address AddrEmpty();
 Address makeNewVar();
+Address makeReg(char *);
 
 TAC makeTAC(OpKind, Address, Address, Address);
 TACList makeTACList(TAC, TACList);
@@ -51,7 +52,7 @@ TACList compile_if(CMD);
 void superF(I_list);
 
 struct Address_ {
-  enum { Empty, Int, String } AddrKind;
+  enum { Empty, Int, String, Register } AddrKind;
   union {
     int val;
     char *var;

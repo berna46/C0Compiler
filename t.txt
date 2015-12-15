@@ -1,0 +1,9 @@
+int main(){
+
+int a;
+if(a==b){
+  x=1+1;
+  int b;
+  }
+return 0;
+}

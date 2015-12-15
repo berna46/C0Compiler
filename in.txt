@@ -1,0 +1,14 @@
+int main(){
+bool c;
+int a;
+if(a==b){
+  x=1+1;
+  int b;
+  }
+else
+  a = b;
+int s;
+while (x == 0)
+  z = 1+3*x*2/a;
+return 0;
+}

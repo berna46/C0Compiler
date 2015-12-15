@@ -62,7 +62,7 @@ void print_TAC(TAC t) {
       // print_Address(t->addr3);
       printf("\n");
       break;
-    case A_BEQ:
+    case A_BEQ://subtrair variaveis e verificar resultado?
       printf("SL? ");
       print_Address(t->addr1);
       printf(", ");
@@ -77,7 +77,7 @@ void print_TAC(TAC t) {
       printf("\n");
       break;
     case GoToLabel:
-      printf("JUMP ");
+      printf("j ");
       print_Address(t->addr1);
       printf("\n");
       break;
@@ -87,7 +87,7 @@ void print_TAC(TAC t) {
       printf(", ");
       print_Address(t->addr2);
       printf("\n");
-    default: printf("...");
+    default:
       break;
   }
 }

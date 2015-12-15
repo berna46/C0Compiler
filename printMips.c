@@ -281,7 +281,8 @@ void print_TAC(TAC t) {
       printf("\n");
       break;
     case A_BEQ://subtrair variaveis e verificar resultado?
-      printf("S?");
+    //ACRESCENTAR LA
+      printf("S? ");
       print_Address(t->addr1);
       printf(", ");
       print_Address(t->addr2);

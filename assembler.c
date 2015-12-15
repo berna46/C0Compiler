@@ -303,8 +303,8 @@ Pair compile(I_list il) {
 
 void superF(I_list il){
   int f = 0, d = 0;
-  if((f = open("out", O_CREAT | O_WRONLY | O_TRUNC | S_IRUSR | S_IWUSR )) < 0){
-    fprintf(stderr, "Não foi possivel criar o ficheiro\n");
+  if((f = open("out", O_CREAT | O_WRONLY | O_TRUNC )) < 0){
+    fprintf(stderr, "Não foi possivel abrir/criar o ficheiro\n");
     exit(EXIT_FAILURE);
   }
   d = dup2(f, 1);
@@ -343,10 +343,7 @@ void compile_decl(DECL decl) {
     fprintf(stderr, "Variável já declarada\n");
     exit(EXIT_FAILURE);
   }
-  else if (decl->type == INT_TYPE)
-    printf("%s: \t.space 4\n",decl->var );
-  else
-    printf("%s: \t.space 1\n",decl->var);
+  printf("%s: \t.space 4\n",decl->var);
   symbolTable = hsearch(init, ENTER);
   //
   if (symbolTable == NULL) {

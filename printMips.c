@@ -7,7 +7,7 @@ void print_AUX(TAC t){
 }
 
 void print_Address(Address a) {
-   //printf("PRINTING_ADRESS\n");
+  // printf("PRINTING_ADRESS\n");
   switch (a->AddrKind) {
   case Register:
       printf("%s", a->content.var);
@@ -24,6 +24,7 @@ void print_Address(Address a) {
 }
 
 void print_TAC(TAC t) {
+  //printf("TAC\n" );
   Address aux2 = malloc(sizeof(*aux2)), aux3 = malloc(sizeof(*aux3));
   switch (t->op) {
     case A_Plus:
@@ -45,7 +46,7 @@ void print_TAC(TAC t) {
         printf("lw " );
         print_Address(aux2);
         printf(", 0(");
-        print_Address(t->addr2);
+        print_Address(aux2);
         printf(")");
         printf("\n");
       }
@@ -59,7 +60,7 @@ void print_TAC(TAC t) {
         printf("lw " );
         print_Address(aux3);
         printf(", 0(");
-        print_Address(t->addr3);
+        print_Address(aux3);
         printf(")");
         printf("\n");
       }
@@ -88,127 +89,127 @@ void print_TAC(TAC t) {
       printf("\n");
         break;
     case A_Minus:
-    //load
-    if(t->addr2->AddrKind == Int){
-      printf("li " );
+      //load
+      if(t->addr2->AddrKind == Int){
+        printf("li " );
+        print_Address(t->addr1);
+        printf(", ");
+        print_Address(t->addr2);
+        printf("\n");
+      }
+      if(t->addr2->AddrKind == String){
+        aux2 = makeNewVar();
+        printf("la ");
+        print_Address(aux2);
+        printf(", ");
+        print_Address(t->addr2);
+        printf("\n");
+        printf("lw " );
+        print_Address(aux2);
+        printf(", 0(");
+        print_Address(aux2);
+        printf(")");
+        printf("\n");
+      }
+      if(t->addr3->AddrKind == String){
+        aux3 = makeNewVar();
+        printf("la ");
+        print_Address(aux3);
+        printf(", ");
+        print_Address(t->addr3);
+        printf("\n");
+        printf("lw " );
+        print_Address(aux3);
+        printf(", 0(");
+        print_Address(aux3);
+        printf(")");
+        printf("\n");
+      }
+      if(t->addr3->AddrKind == String || t->addr3->AddrKind == Register){
+        printf("sub ");
+      }
+      else{
+        printf("subi ");
+      }
       print_Address(t->addr1);
       printf(", ");
-      print_Address(t->addr2);
-      printf("\n");
-    }
-    if(t->addr2->AddrKind == String){
-      aux2 = makeNewVar();
-      printf("la ");
-      print_Address(aux2);
+      if(t->addr2->AddrKind == Int){
+        print_Address(t->addr1);
+      }
+      else if(t->addr2->AddrKind == Register)
+        print_Address(t->addr2);
+      else
+        print_Address(aux2);
       printf(", ");
-      print_Address(t->addr2);
+      if(t->addr3->AddrKind == Int)
+        print_Address(t->addr3);
+      else if(t->addr3->AddrKind == Register)
+        print_Address(t->addr3);
+      else
+        print_Address(aux3);
       printf("\n");
-      printf("lw " );
-      print_Address(aux2);
-      printf(", 0(");
-      print_Address(t->addr2);
-      printf(")");
-      printf("\n");
-    }
-    if(t->addr3->AddrKind == String){
-      aux3 = makeNewVar();
-      printf("la ");
-      print_Address(aux3);
-      printf(", ");
-      print_Address(t->addr3);
-      printf("\n");
-      printf("lw " );
-      print_Address(aux3);
-      printf(", 0(");
-      print_Address(t->addr3);
-      printf(")");
-      printf("\n");
-    }
-    if(t->addr3->AddrKind == String || t->addr3->AddrKind == Register){
-      printf("sub ");
-    }
-    else{
-      printf("subi ");
-    }
-    print_Address(t->addr1);
-    printf(", ");
-    if(t->addr2->AddrKind == Int){
-      print_Address(t->addr1);
-    }
-    else if(t->addr2->AddrKind == Register)
-      print_Address(t->addr2);
-    else
-      print_Address(aux2);
-    printf(", ");
-    if(t->addr3->AddrKind == Int)
-      print_Address(t->addr3);
-    else if(t->addr3->AddrKind == Register)
-      print_Address(t->addr3);
-    else
-      print_Address(aux3);
-    printf("\n");
-      break;
+        break;
     case A_Times:
-    //load
-    if(t->addr2->AddrKind == Int){
-      printf("li " );
+      //load
+      if(t->addr2->AddrKind == Int){
+        printf("li " );
+        print_Address(t->addr1);
+        printf(", ");
+        print_Address(t->addr2);
+        printf("\n");
+      }
+      if(t->addr2->AddrKind == String){
+        aux2 = makeNewVar();
+        printf("la ");
+        print_Address(aux2);
+        printf(", ");
+        print_Address(t->addr2);
+        printf("\n");
+        printf("lw " );
+        print_Address(aux2);
+        printf(", 0(");
+        print_Address(aux2);
+        printf(")");
+        printf("\n");
+      }
+      if(t->addr3->AddrKind == String){
+        aux3 = makeNewVar();
+        printf("la ");
+        print_Address(aux3);
+        printf(", ");
+        print_Address(t->addr3);
+        printf("\n");
+        printf("lw " );
+        print_Address(aux3);
+        printf(", 0(");
+        print_Address(aux3);
+        printf(")");
+        printf("\n");
+      }
+      if(t->addr3->AddrKind == String || t->addr3->AddrKind == Register){
+        printf("mul ");
+      }
+      else{
+        printf("muli ");
+      }
       print_Address(t->addr1);
       printf(", ");
-      print_Address(t->addr2);
-      printf("\n");
-    }
-    if(t->addr2->AddrKind == String){
-      aux2 = makeNewVar();
-      printf("la ");
-      print_Address(aux2);
+      if(t->addr2->AddrKind == Int){
+        print_Address(t->addr1);
+      }
+      else if(t->addr2->AddrKind == Register)
+        print_Address(t->addr2);
+      else
+        print_Address(aux2);
       printf(", ");
-      print_Address(t->addr2);
+      if(t->addr3->AddrKind == Int)
+        print_Address(t->addr3);
+      else if(t->addr3->AddrKind == Register)
+        print_Address(t->addr3);
+      else
+        print_Address(aux3);
       printf("\n");
-      printf("lw " );
-      print_Address(aux2);
-      printf(", 0(");
-      print_Address(t->addr2);
-      printf(")");
-      printf("\n");
-    }
-    if(t->addr3->AddrKind == String){
-      aux3 = makeNewVar();
-      printf("la ");
-      print_Address(aux3);
-      printf(", ");
-      print_Address(t->addr3);
-      printf("\n");
-      printf("lw " );
-      print_Address(aux3);
-      printf(", 0(");
-      print_Address(t->addr3);
-      printf(")");
-      printf("\n");
-    }
-    if(t->addr3->AddrKind == String || t->addr3->AddrKind == Register){
-      printf("mul ");
-    }
-    else{
-      printf("muli ");
-    }
-    print_Address(t->addr1);
-    printf(", ");
-    if(t->addr2->AddrKind == Int){
-      print_Address(t->addr1);
-    }
-    else if(t->addr2->AddrKind == Register)
-      print_Address(t->addr2);
-    else
-      print_Address(aux2);
-    printf(", ");
-    if(t->addr3->AddrKind == Int)
-      print_Address(t->addr3);
-    else if(t->addr3->AddrKind == Register)
-      print_Address(t->addr3);
-    else
-      print_Address(aux3);
-    printf("\n");
-      break;
+        break;
     case A_Div:
     //load
     if(t->addr2->AddrKind == Int){
@@ -228,7 +229,7 @@ void print_TAC(TAC t) {
       printf("lw " );
       print_Address(aux2);
       printf(", 0(");
-      print_Address(t->addr2);
+      print_Address(aux2);
       printf(")");
       printf("\n");
     }
@@ -242,7 +243,7 @@ void print_TAC(TAC t) {
       printf("lw " );
       print_Address(aux3);
       printf(", 0(");
-      print_Address(t->addr3);
+      print_Address(aux3);
       printf(")");
       printf("\n");
     }
@@ -271,24 +272,278 @@ void print_TAC(TAC t) {
     printf("\n");
       break;
     case A_Asn:
-    if(t->addr2->AddrKind == String || t->addr2->AddrKind == Register)
-      printf("lw ");
-    else
-        printf("li ");
+      if(t->addr2->AddrKind == String || t->addr2->AddrKind == Register)
+        printf("lw ");
+      else
+          printf("li ");
+        print_Address(makeNewVar());
+        printf(", ");
+      if(t->addr2->AddrKind == String || t->addr2->AddrKind == Register)
+            printf("0(" );
+      print_Address(t->addr2);
+      if(t->addr2->AddrKind == String || t->addr2->AddrKind == Register)
+        printf(")" );
+      printf("\n");
+      break;
+    case A_BEQ:
+      //load
+      if(t->addr2->AddrKind == Int){
+        printf("li " );
+        print_Address(t->addr1);
+        printf(", ");
+        print_Address(t->addr2);
+        printf("\n");
+      }
+      if(t->addr3->AddrKind == Int){
+        printf("li " );
+        print_Address(t->addr1);
+        printf(", ");
+        print_Address(t->addr3);
+        printf("\n");
+      }
+      if(t->addr2->AddrKind == String){
+        aux2 = makeNewVar();
+        printf("la ");
+        print_Address(aux2);
+        printf(", ");
+        print_Address(t->addr2);
+        printf("\n");
+        printf("lw " );
+        print_Address(aux2);
+        printf(", 0(");
+        print_Address(aux2);
+        printf(")");
+        printf("\n");
+      }
+      if(t->addr3->AddrKind == String){
+        aux3 = makeNewVar();
+        printf("la ");
+        print_Address(aux3);
+        printf(", ");
+        print_Address(t->addr3);
+        printf("\n");
+        printf("lw " );
+        print_Address(aux3);
+        printf(", 0(");
+        print_Address(aux3);
+        printf(")");
+        printf("\n");
+      }
+        printf("eq " );
+        print_Address(t->addr1);
+        printf(", " );
+        print_Address(t->addr1);
+        printf(", " );
+        print_Address(aux3);
+        printf("\n" );
+        break;
+    case A_BLT:
+    //load
+    if(t->addr2->AddrKind == Int){
+      printf("li " );
       print_Address(t->addr1);
       printf(", ");
       print_Address(t->addr2);
       printf("\n");
-      break;
-    case A_BEQ://subtrair variaveis e verificar resultado?
-    //ACRESCENTAR LA
-      printf("S? ");
+    }
+    if(t->addr3->AddrKind == Int){
+      printf("li " );
       print_Address(t->addr1);
-      printf(", ");
-      print_Address(t->addr2);
       printf(", ");
       print_Address(t->addr3);
       printf("\n");
+    }
+    if(t->addr2->AddrKind == String){
+      aux2 = makeNewVar();
+      printf("la ");
+      print_Address(aux2);
+      printf(", ");
+      print_Address(t->addr2);
+      printf("\n");
+      printf("lw " );
+      print_Address(aux2);
+      printf(", 0(");
+      print_Address(aux2);
+      printf(")");
+      printf("\n");
+    }
+    if(t->addr3->AddrKind == String){
+      aux3 = makeNewVar();
+      printf("la ");
+      print_Address(aux3);
+      printf(", ");
+      print_Address(t->addr3);
+      printf("\n");
+      printf("lw " );
+      print_Address(aux3);
+      printf(", 0(");
+      print_Address(aux3);
+      printf(")");
+      printf("\n");
+    }
+      printf("slt " );
+      print_Address(t->addr1);
+      printf(", " );
+      print_Address(t->addr1);
+      printf(", " );
+      print_Address(aux3);
+      printf("\n" );
+      break;
+    case A_BGT:
+      //load
+      if(t->addr2->AddrKind == Int){
+        printf("li " );
+        print_Address(t->addr1);
+        printf(", ");
+        print_Address(t->addr2);
+        printf("\n");
+      }
+      if(t->addr3->AddrKind == Int){
+        printf("li " );
+        print_Address(t->addr1);
+        printf(", ");
+        print_Address(t->addr3);
+        printf("\n");
+      }
+      if(t->addr2->AddrKind == String){
+        aux2 = makeNewVar();
+        printf("la ");
+        print_Address(aux2);
+        printf(", ");
+        print_Address(t->addr2);
+        printf("\n");
+        printf("lw " );
+        print_Address(aux2);
+        printf(", 0(");
+        print_Address(aux2);
+        printf(")");
+        printf("\n");
+      }
+      if(t->addr3->AddrKind == String){
+        aux3 = makeNewVar();
+        printf("la ");
+        print_Address(aux3);
+        printf(", ");
+        print_Address(t->addr3);
+        printf("\n");
+        printf("lw " );
+        print_Address(aux3);
+        printf(", 0(");
+        print_Address(aux3);
+        printf(")");
+        printf("\n");
+      }
+        printf("slt " );
+        print_Address(t->addr1);
+        printf(", " );
+        print_Address(aux3);
+        printf(", " );
+        print_Address(t->addr1);
+        printf("\n" );
+        break;
+    case A_AND:
+    //load
+    if(t->addr2->AddrKind == Int){
+      printf("li " );
+      print_Address(t->addr1);
+      printf(", ");
+      print_Address(t->addr2);
+      printf("\n");
+    }
+    if(t->addr3->AddrKind == Int){
+      printf("li " );
+      print_Address(aux2);
+      printf(", ");
+      print_Address(aux3);
+      printf("\n");
+    }
+    if(t->addr2->AddrKind == String){
+      aux2 = makeNewVar();
+      printf("la ");
+      print_Address(aux2);
+      printf(", ");
+      print_Address(t->addr2);
+      printf("\n");
+      printf("lw " );
+      print_Address(aux2);
+      printf(", 0(");
+      print_Address(aux2);
+      printf(")");
+      printf("\n");
+    }
+    if(t->addr3->AddrKind == String){
+      aux3 = makeNewVar();
+      printf("la ");
+      print_Address(aux3);
+      printf(", ");
+      print_Address(t->addr3);
+      printf("\n");
+      printf("lw " );
+      print_Address(aux3);
+      printf(", 0(");
+      print_Address(aux3);
+      printf(")");
+      printf("\n");
+    }
+      printf("and " );
+      print_Address(t->addr1);
+      printf(", " );
+      print_Address(t->addr2);
+      printf(", " );
+      print_Address(t->addr3);
+      printf("\n" );
+      break;
+    case A_OR:
+    //load
+    if(t->addr2->AddrKind == Int){
+      printf("li " );
+      print_Address(t->addr1);
+      printf(", ");
+      print_Address(t->addr2);
+      printf("\n");
+    }
+    if(t->addr3->AddrKind == Int){
+      printf("li " );
+      print_Address(t->addr1);
+      printf(", ");
+      print_Address(t->addr3);
+      printf("\n");
+    }
+    if(t->addr2->AddrKind == String || t->addr2->AddrKind == Register){
+      aux2 = makeNewVar();
+      printf("la ");
+      print_Address(aux2);
+      printf(", ");
+      print_Address(t->addr2);
+      printf("\n");
+      printf("lw " );
+      print_Address(aux2);
+      printf(", 0(");
+      print_Address(aux2);
+      printf(")");
+      printf("\n");
+    }
+    if(t->addr3->AddrKind == String || t->addr3->AddrKind == Register){
+      aux3 = makeNewVar();
+      printf("la ");
+      print_Address(aux3);
+      printf(", ");
+      print_Address(t->addr3);
+      printf("\n");
+      printf("lw " );
+      print_Address(aux3);
+      printf(", 0(");
+      print_Address(aux3);
+      printf(")");
+      printf("\n");
+    }
+      printf("or " );
+      print_Address(t->addr1);
+      printf(", " );
+      print_Address(aux2);
+      printf(", " );
+      print_Address(aux3);
+      printf("\n" );
       break;
     case Label:
       print_Address(t->addr1);
@@ -314,9 +569,16 @@ void print_TAC(TAC t) {
 }
 
 void print_TACLIST(TACList tl) {
+  //printf("TACList\n");
   if(tl->head != NULL)
    print_TAC(tl->head);
   if (tl->tail != NULL) {
     print_TACLIST(tl->tail);
   }
+}
+
+void print_return(int l){
+  printf("li $v0, 10\n" );
+  printf("addi $a0, $zero, %d\n", l);
+  printf("syscall\n");
 }

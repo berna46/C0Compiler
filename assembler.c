@@ -189,38 +189,71 @@ OpKind getBop(A_BOper o) {
 }
 
 Pair compile_exp(A_exp e) {
+  //printf("EXP\n" );
   Pair auxA = malloc(sizeof(*auxA)), auxB = malloc(sizeof(*auxB)),
        p = malloc(sizeof(*p)), res = malloc(sizeof(*res));
   TACList list = malloc(sizeof(*list)), list3 = malloc(sizeof(*list3)),
           tmp = malloc(sizeof(*tmp));
-  Address t0 = malloc(sizeof(*t0));
-  TAC elem = malloc(sizeof(*elem));
+  Address t0 = malloc(sizeof(*t0)), t1 = malloc(sizeof(*t1)),
+          t2 = malloc(sizeof(*t2));
+  TAC elem = malloc(sizeof(*elem)), elem1 = malloc(sizeof(*elem1)),
+      elem2 = malloc(sizeof(*elem2));
   OpKind op;
   switch (e->kind) {
   case A_BopExp:
-    t0 = makeNewVar();                  // var. resultado
-    auxA = compile_exp(e->u.opB.left);  // ramo esq.
-    auxB = compile_exp(e->u.opB.right); // ramo dir.
-    op = getBop(e->u.opB.oper);
-    elem = makeTAC(op, t0, auxA->addr, auxB->addr); // INSTRUÇÃO FINAL
-    // APPEND esq. ++ dir.
-    if (auxA->clist != NULL && auxB->clist != NULL) {
-      list3 = append(auxA->clist, auxB->clist);
-    } else if (auxA->clist != NULL) {
-      list3 = auxA->clist;
-    } else {
-      list3 = auxB->clist; // pode ser NULL
-    }
-    tmp = makeTACList(elem, NULL); // exp. final
-    if (list3 != NULL)
-      list = append(list3, tmp);
-    else
-      list = tmp;
-    res = makePair(t0, list);
-    //última var. ()é usada no salto
-    final_reg = res->addr->content.var;
-    return res;
-    break;
+  t0 = makeNewVar();                   // var. resultado
+  auxA = compile_exp(e->u.opB.left);   // ramo esq.
+  auxB = compile_exp(e->u.opB.right);  // ramo dir.
+  op = getBop(e->u.opB.oper);
+
+  switch (op) {
+    case A_BLE:
+      t1 = makeNewVar();
+      t2 = makeNewVar();
+
+      elem1 = makeTAC(A_BLT, t1, auxA->addr, auxB->addr);
+      elem2 = makeTAC(A_BEQ, t2, auxA->addr, auxB->addr);
+      elem = makeTAC(A_OR, t0, t1, t2);
+
+      tmp = makeTACList(elem1, makeTACList(elem2, makeTACList(elem, NULL)));
+
+      list = append(auxA->clist, tmp);
+      break;
+    case A_BGE:
+      t1 = makeNewVar();
+      t2 = makeNewVar();
+
+      elem1 = makeTAC(A_BGT, t1, auxA->addr, auxB->addr);
+      elem2 = makeTAC(A_BEQ, t2, auxA->addr, auxB->addr);
+      elem = makeTAC(A_OR, t0, t1, t2);
+
+      tmp = makeTACList(elem1, makeTACList(elem2, makeTACList(elem, NULL)));
+      list = append(list, auxB->clist);
+      list = append(list, tmp);
+      break;
+    default:
+      elem = makeTAC(op, t0, auxA->addr, auxB->addr);  // INSTRUÇÃO FINAL
+      // APPEND esq. ++ dir.
+      if (auxA->clist != NULL && auxB->clist != NULL) {
+        list3 = append(auxA->clist, auxB->clist);
+      } else if (auxA->clist != NULL) {
+        list3 = auxA->clist;
+      } else {
+        list3 = auxB->clist;  // pode ser NULL
+      }
+      tmp = makeTACList(elem, NULL);  // exp. final
+      if (list3 != NULL)
+        list = append(list3, tmp);
+      else
+        list = tmp;
+      break;
+  }
+
+  res = makePair(t0, list);
+  //última var. ()é usada no salto
+  final_reg = res->addr->content.var;
+  return res;
+  break;
   case A_AopExp:
     t0 = makeNewVar();                  // var. resultado
     auxA = compile_exp(e->u.opA.left);  // ramo esq.
@@ -274,6 +307,8 @@ Pair compile_exp(A_exp e) {
 
 /******************/
 Pair compile(I_list il) {
+  //printf("COMPILe\n" );
+
   Pair tl = malloc(sizeof(*tl));
   tl = NULL;
   switch (il->kind) {
@@ -303,7 +338,7 @@ Pair compile(I_list il) {
 
 void superF(I_list il){
   int f = 0, d = 0;
-  if((f = open("out", O_CREAT | O_WRONLY | O_TRUNC )) < 0){
+  if((f = open("out.asm", O_CREAT | O_WRONLY | O_TRUNC, S_IWUSR | S_IRUSR)) < 0){
     fprintf(stderr, "Não foi possivel abrir/criar o ficheiro\n");
     exit(EXIT_FAILURE);
   }
@@ -312,8 +347,8 @@ void superF(I_list il){
     fprintf(stderr, "Não foi possivel escrever no ficheiros\n");
     exit(EXIT_FAILURE);
   }
-  Pair p = compile(il);
-  hdestroy();
+ Pair p = compile(il);
+  //hdestroy();
   //só declarações
   printf("\t\t.text\n");
   printf("main:\n");
@@ -324,6 +359,8 @@ void superF(I_list il){
 
 
 void compile_decl(DECL decl) {
+  //printf("DECL\n" );
+
   // verifica se a tabela de símbolos já foi inicializada
   if (init_hash == 0){
     create_hasht();
@@ -376,6 +413,8 @@ Pair compile_cmd(CMD cmd) {
 }
 
 TACList compile_ass(CMD d) {
+  //printf("ASS\n" );
+
   Pair p_exp = compile_exp(d->u.ass.assignment_);
   Address addr1 = makeVar(d->u.ass.var_);
   Address addr2 = p_exp->addr;
@@ -394,25 +433,31 @@ TACList compile_ass(CMD d) {
 
 // compila comando WHILE
 TACList compile_while(CMD wh) {
-  TACList w = malloc(sizeof(*w)), jlb = malloc(sizeof(*jlb));
-  Pair p_exp = compile_exp(wh->u.w.while_);
+//  printf("WHILE\n" );
+
+  TACList w = malloc(sizeof(*w)), jlb = malloc(sizeof(*jlb)), j = malloc(sizeof(*j));
+  Pair p_exp = compile_exp(wh->u.w.while_), ptl = malloc(sizeof(*ptl));
   // cria while_label e coloca exp. na cauda da label
   w = makeTACList(makeTAC(Label, makeNewLabel(), NULL, NULL), p_exp->clist);
   //adiciona On_false label
   jlb->head = makeTAC(On_False, makeVar(final_reg), makeNewLabel(), NULL);
   w = append(w, jlb);
-  if(wh->u.w.while_I_list_){
-    TACList j = makeTACList(makeTAC(GoToLabel,w->head->addr1, NULL, NULL), NULL);
-    Pair ptl = compile(wh->u.w.while_I_list_);
-    ptl->clist = append(ptl->clist, j);
-    w = append(w, ptl->clist);
+  if (wh->u.w.while_I_list_) {
+    ptl = compile(wh->u.w.while_I_list_);
+    if(ptl != NULL){
+      w = append(w, ptl->clist);
+    }
   }
+  j = makeTACList(makeTAC(GoToLabel, w->head->addr1, NULL, NULL), NULL);
+  w = append(w, j);
   //adiciona label if false ao final do while
   w = append(w, makeTACList(makeTAC(Label, jlb->head->addr2, NULL, NULL), NULL));
   return w;
 }
 
 TACList compile_if(CMD ift) {
+//  printf("IF\n" );
+
   TACList ilb = malloc(sizeof(*ilb)), jlb = malloc(sizeof(*jlb)),
           elb = malloc(sizeof(*elb)); // fl = malloc(sizeof(*fl));
   Pair then_list = malloc(sizeof(*then_list)),
@@ -429,27 +474,30 @@ TACList compile_if(CMD ift) {
   // then statement
   Address end_if = makeNewLabel();
   if (ift->u.if_else.then_I_list_ != NULL) {
+    TACList aux = malloc(sizeof(*aux));
     then_list = compile(ift->u.if_else.then_I_list_);
     // adiciona jump ao fim das instruçoes (salta else)
-    // VERIFICAR SE EXISTE else
-    if (ift->u.if_else.else_I_list_ != NULL)
-      then_list->clist =
-          append(then_list->clist,
-                 makeTACList(makeTAC(GoToLabel, end_if, NULL, NULL), NULL));
-    ilb = append(ilb, then_list->clist);
+    // VERIFICA SE EXISTE else
+    if (ift->u.if_else.else_I_list_ != NULL && then_list != NULL)
+      then_list->clist = append(then_list->clist, makeTACList(makeTAC(GoToLabel, end_if, NULL, NULL), NULL));
+    else if(ift->u.if_else.else_I_list_ != NULL)
+        aux = makeTACList(makeTAC(GoToLabel, end_if, NULL, NULL),NULL);
+    if(then_list != NULL)
+      ilb = append(ilb, then_list->clist);
+    else
+    ilb = append(ilb, aux);  
   }
   // adiciona jump_label (else/fim do if)
-  elb = makeTACList(
-      makeTAC(Label, makeVar(jlb->head->addr2->content.var), NULL, NULL), NULL);
+  elb = makeTACList(makeTAC(Label, makeVar(jlb->head->addr2->content.var), NULL, NULL), NULL);
   ilb = append(ilb, elb);
   // else
   if (ift->u.if_else.else_I_list_ != NULL) {
     else_list = compile(ift->u.if_else.else_I_list_);
     // adiciona end_if ao fim da lista de instruções
-    else_list->clist =
-        append(else_list->clist,
-               makeTACList(makeTAC(Label, end_if, NULL, NULL), NULL));
-    ilb = append(ilb, else_list->clist);
+    if(else_list != NULL){
+      else_list->clist = append(else_list->clist, makeTACList(makeTAC(Label, end_if, NULL, NULL), NULL));
+      ilb = append(ilb, else_list->clist);
+    }
   }
   return ilb;
 }

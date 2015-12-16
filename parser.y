@@ -45,7 +45,7 @@ void yyerror(const char *);
 %%
 
 START:
-MAIN CB0 INST_L RETURN NUM SEMICOLON CB1 	{ $$ = $3; print_tree($3); printf("\n"); superF($3);}
+MAIN CB0 INST_L RETURN NUM SEMICOLON CB1 	{ $$ = $3; print_tree($3); printf("\n"); superF($3); print_return($5);}
 ;
 
 INST_L:

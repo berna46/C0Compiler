@@ -48,49 +48,47 @@ START:
 MAIN CB0 INST_L RETURN NUM SEMICOLON CB1 	{ $$ = $3; print_tree($3); printf("\n"); superF($3); print_return($5);}
 ;
 
+
 INST_L:
-SINGLE_INST				{ $$ = $1; }
+SINGLE_INST					{ $$ = $1; }
 |COMMAND INST_L	 		{ $$ = Head_CMD($1,$2); }
-|DEC INST_L				{ $$ = Head_DECL($1,$2); }
+|DEC INST_L					{ $$ = Head_DECL($1,$2); }
 ;
 
 
 SINGLE_INST:
-COMMAND 				{ $$ = Head_CMD($1,NULL); }
-|DEC 					{ $$ = Head_DECL($1,NULL); }
+COMMAND 						{ $$ = Head_CMD($1,NULL); }
+|DEC 							{ $$ = Head_DECL($1,NULL); }
 ;
 
 
 COMMAND:
-VAR ASSIGN EXP SEMICOLON													{ $$ = CMD_assignment($1,$3); }
+VAR ASSIGN EXP SEMICOLON										{ $$ = CMD_assignment($1,$3); }
 
-|IF P0 EXP P1 SEMICOLON 							          	{ $$ = CMD_if_then_else($3,NULL,NULL); }
+|IF P0 EXP P1 SEMICOLON 							         { $$ = CMD_if_then_else($3,NULL,NULL); }
 |IF P0 EXP P1 SINGLE_INST 						           	{ $$ = CMD_if_then_else($3,$5,NULL); }
 |IF P0 EXP P1 CB0 INST_L CB1					           	{ $$ = CMD_if_then_else($3,$6,NULL); }
 
-|IF P0 EXP P1 THEN_STMT ELSE SINGLE_INST				  { $$ = CMD_if_then_else($3,$5,$7); }
-|IF P0 EXP P1 THEN_STMT ELSE CB0 INST_L CB1			  { $$ = CMD_if_then_else($3,$5,$8); }
+|IF P0 EXP P1 THEN_STMT ELSE SINGLE_INST				  	{ $$ = CMD_if_then_else($3,$5,$7); }
+|IF P0 EXP P1 THEN_STMT ELSE CB0 INST_L CB1			  	{ $$ = CMD_if_then_else($3,$5,$8); }
 
 |IF P0 EXP P1 CB0 INST_L CB1 ELSE SINGLE_INST	   	{ $$ = CMD_if_then_else($3,$6,$9); }
-|IF P0 EXP P1 CB0 INST_L CB1 ELSE CB0 INST_L CB1 	{ $$ = CMD_if_then_else($3,$6,$10); }
+|IF P0 EXP P1 CB0 INST_L CB1 ELSE CB0 INST_L CB1 		{ $$ = CMD_if_then_else($3,$6,$10); }
 
-|WHILE P0 EXP P1 SEMICOLON 												{ $$ = CMD_while($3,NULL); }
-|WHILE P0 EXP P1 SINGLE_INST 											{ $$ = CMD_while($3,$5); }
-|WHILE P0 EXP P1 CB0 INST_L CB1 									{ $$ = CMD_while($3,$6); }
+|WHILE P0 EXP P1 SEMICOLON 									{ $$ = CMD_while($3,NULL); }
+|WHILE P0 EXP P1 SINGLE_INST 									{ $$ = CMD_while($3,$5); }
+|WHILE P0 EXP P1 CB0 INST_L CB1 								{ $$ = CMD_while($3,$6); }
 ;
+
 
 THEN_STMT:
-VAR ASSIGN EXP SEMICOLON					{ $$ = Head_CMD(CMD_assignment($1,$3),NULL); }
-|DEC 										{ $$ = Head_DECL($1,NULL); }
-|WHILE P0 EXP P1 SEMICOLON 					{ $$ = Head_CMD(CMD_while($3,NULL),NULL); }
-|WHILE P0 EXP P1 THEN_STMT 					{ $$ = Head_CMD(CMD_while($3,$5),NULL); }
-|WHILE P0 EXP P1 CB0 INST_L CB1 			{ $$ = Head_CMD(CMD_while($3,$6),NULL); }
-|IF P0 EXP P1 THEN_STMT ELSE THEN_STMT		{ $$ = Head_CMD(CMD_if_then_else($3,$5,$7),NULL); }
+VAR ASSIGN EXP SEMICOLON										{ $$ = Head_CMD(CMD_assignment($1,$3),NULL); }
+|DEC 																	{ $$ = Head_DECL($1,NULL); }
+|WHILE P0 EXP P1 SEMICOLON 									{ $$ = Head_CMD(CMD_while($3,NULL),NULL); }
+|WHILE P0 EXP P1 THEN_STMT 									{ $$ = Head_CMD(CMD_while($3,$5),NULL); }
+|WHILE P0 EXP P1 CB0 INST_L CB1 								{ $$ = Head_CMD(CMD_while($3,$6),NULL); }
+|IF P0 EXP P1 THEN_STMT ELSE THEN_STMT						{ $$ = Head_CMD(CMD_if_then_else($3,$5,$7),NULL); }
 ;
-
-
-
-
 
 
 EXP:
@@ -98,7 +96,7 @@ VAR 				   { $$ = A_VarExp_($1);}
 | NUM				 	{ $$ = A_IntExp_($1); }
 | TRUE				{ $$ = A_BoolExp_(BOOL_TRUE); }
 | FALSE				{ $$ = A_BoolExp_(BOOL_FALSE); }
-| EXP Plus EXP 		{ $$ = A_AOpExp_(OpPlus,$1,$3); }
+| EXP Plus EXP 	{ $$ = A_AOpExp_(OpPlus,$1,$3); }
 | EXP Minus EXP 	{ $$ = A_AOpExp_(OpMinus,$1,$3); }
 | EXP Times EXP 	{ $$ = A_AOpExp_(OpTimes,$1,$3); }
 | EXP Div EXP 		{ $$ = A_AOpExp_(OpDiv,$1,$3); }
@@ -127,6 +125,7 @@ int main(){
 	yyparse();
 	return 0;
 }
+
 void yyerror(const char *c){
 	printf("syntax error\n");
 }

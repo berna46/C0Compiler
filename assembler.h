@@ -2,11 +2,12 @@
 #define ASSEMBLER_H
 
 #include "tree.h"
-typedef struct Pair_ *Pair;
-typedef struct TAC_ *TAC;
-typedef struct Output_ *Output;
-typedef struct Address_ *Address;
-typedef struct TACList_ *TACList;
+
+typedef struct Pair_* Pair;
+typedef struct TAC_* TAC;
+typedef struct Output_* Output;
+typedef struct Address_* Address;
+typedef struct TACList_* TACList;
 typedef enum {
   A_Plus,
   A_Minus,
@@ -27,17 +28,16 @@ typedef enum {
   Decl
 } OpKind;
 
-
 Address makeVal(int);
-Address makeVar(char *);
+Address makeVar(char*);
 Address AddrEmpty();
 Address makeNewVar();
-Address makeReg(char *);
+Address makeReg(char*);
 
 TAC makeTAC(OpKind, Address, Address, Address);
 TACList makeTACList(TAC, TACList);
 Pair makePair(Address, TACList);
-Output makeOutput(char *, TACList);
+Output makeOutput(char*, TACList);
 
 TACList append(TACList, TACList);
 
@@ -57,7 +57,7 @@ struct Address_ {
   enum { Empty, Int, String, Register } AddrKind;
   union {
     int val;
-    char *var;
+    char* var;
   } content;
 };
 
@@ -77,7 +77,7 @@ struct Pair_ {
 };
 
 struct Output_ {
-  char *var;
+  char* var;
   TACList clist;
 };
 
